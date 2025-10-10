@@ -31,7 +31,7 @@ class NavButton(QPushButton):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("ProjectX — Трекер времени")
+        self.setWindowTitle("Timely — Трекер времени")
         self.setMinimumSize(900, 600)
 
         container = QWidget()
