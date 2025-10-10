@@ -2,15 +2,15 @@
     {
         "id": "c9dccd30-a0a2-4f7a-9b72-9fe97697037e",
         "title": "Чтение книг",
-        "description": "Чтение книг для общего развития/повышения квалификации",
-        "comment": "РАЗВИВАЙСЯ ДОЛБАЁБ ЕБАНЫЙ",
+        "description": "Чтение художественной литературы",
+        "comment": "",
         "start_date": "2025-10-08T22:17:52.684017",
-        "deadline": "2025-10-08T22:16:21.215000",
+        "deadline": null,
         "is_completed": false,
         "time_allocated": 30,
         "time_spent": 187.46826,
         "is_periodic": true,
-        "period_type": "day",
+        "period_type": "День",
         "sessions": [
             {
                 "start": "2025-10-08T22:18:07.367142",
