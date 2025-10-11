@@ -1,83 +1,78 @@
-import json
-import os
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QLabel, QSpinBox, QApplication
-
-SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "settings.json")
+from PyQt5.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QComboBox,
+    QCheckBox,
+)
+from PyQt5.QtCore import Qt
+from .translations import LANGUAGES, tr
+from .storage import load_settings, save_settings
 
 
 class SettingsWidget(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    def __init__(self, main_window=None):
+        super().__init__()
+        self.main_window = main_window
+        self.settings = load_settings()  # загрузка текущих настроек
+        self.init_ui()
+        self.apply_font_size()  # сразу применяем шрифт
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(10)
+    def init_ui(self):
+        layout = QVBoxLayout(self)
 
-        layout.addWidget(QLabel("Размер шрифта:"))
+        # ----------------- Язык -----------------
+        lang_layout = QHBoxLayout()
+        self.lang_label = QLabel(tr("Язык") + ":")
+        self.lang_combo = QComboBox()
+        self.lang_combo.addItems(LANGUAGES)
+        current_lang = self.settings.get("language", "Русский")
+        self.lang_combo.setCurrentText(current_lang)
+        self.lang_combo.currentTextChanged.connect(self.change_language)
+        lang_layout.addWidget(self.lang_label)
+        lang_layout.addWidget(self.lang_combo)
+        layout.addLayout(lang_layout)
 
-        self.font_size_spin = QSpinBox()
-        self.font_size_spin.setRange(8, 24)  # ограничения
-        layout.addWidget(self.font_size_spin)
+        # ----------------- Тёмная тема -----------------
+        theme_layout = QHBoxLayout()
+        self.dark_theme_cb = QCheckBox(tr("Использовать тёмную тему"))
+        self.dark_theme_cb.setChecked(self.settings.get("dark_theme", True))
+        self.dark_theme_cb.stateChanged.connect(self.change_theme)
+        theme_layout.addWidget(self.dark_theme_cb)
+        layout.addLayout(theme_layout)
 
-        # при изменении размера шрифта сразу применяем
-        self.font_size_spin.valueChanged.connect(self.apply_font_size)
+        # ----------------- Информационная надпись -----------------
+        self.info_label = QLabel(tr("Настройки приложения"))
+        self.info_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.info_label)
 
-        self.load_settings()
+        layout.addStretch()
 
-    def load_settings(self):
-        """Загрузить размер шрифта из settings.json"""
-        size = 10
-        if os.path.exists(SETTINGS_FILE):
-            try:
-                with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    size = data.get("font_size", 10)
-            except Exception:
-                pass
-        self.font_size_spin.setValue(size)
-        self.apply_font_size(size)
+    def change_language(self, lang):
+        self.settings["language"] = lang
+        save_settings(self.settings)
+        tr.set_language(lang)
+        self.update_ui_texts()
 
-    def save_settings(self, size):
-        """Сохраняем размер шрифта"""
-        try:
-            with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
-                json.dump({"font_size": size}, f, ensure_ascii=False, indent=2)
-        except Exception:
-            pass
+    def change_theme(self, state):
+        self.settings["dark_theme"] = state == Qt.Checked
+        save_settings(self.settings)
 
-    def apply_font_size(self, size=None):
-        """Применяем размер шрифта ко всему приложению и диалогам"""
-        if size is None:
-            size = self.font_size_spin.value()
+    def update_ui_texts(self):
+        self.lang_label.setText(tr("Язык") + ":")
+        self.dark_theme_cb.setText(tr("Использовать тёмную тему"))
+        self.info_label.setText(tr("Настройки приложения"))
 
-        font = QApplication.instance().font()
-        font.setPointSize(size)
-        QApplication.instance().setFont(font)
+        # Применяем размер шрифта
+        self.apply_font_size()
 
-        # Применяем к уже существующим виджетам и диалогам
-        for w in QApplication.instance().allWidgets():
-            w.setFont(font)
-            w.setStyleSheet(
-                f"""
-                QLabel, QLineEdit, QTextEdit, QCheckBox, QSpinBox {{
-                    font-size: {size}pt;
-                }}
-            """
-            )
+        # Обновляем интерфейс MainWindow, если передан
+        if self.main_window:
+            self.main_window.retranslateUi()
 
-        self.save_settings(size)
-
-
-def apply_font_to_dialog(dialog: QWidget):
-    """Вызывать для любого нового диалога после создания"""
-    font = QApplication.instance().font()
-    dialog.setFont(font)
-    for child in dialog.findChildren(QWidget):
-        child.setFont(font)
-    dialog.setStyleSheet(
-        f"""
-        QLabel, QLineEdit, QTextEdit, QCheckBox, QSpinBox {{
-            font-size: {font.pointSize()}pt;
-        }}
-    """
-    )
+    def apply_font_size(self):
+        font_size = self.settings.get("font_size", 12)
+        font = self.font()
+        font.setPointSize(font_size)
+        self.setFont(font)

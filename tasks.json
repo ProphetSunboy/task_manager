@@ -8,7 +8,7 @@
         "deadline": null,
         "is_completed": false,
         "time_allocated": 30,
-        "time_spent": 187.46826,
+        "time_spent": 189.88679699999997,
         "is_periodic": true,
         "period_type": "День",
         "sessions": [
@@ -87,21 +87,72 @@
             {
                 "start": "2025-10-08T23:05:15.774662",
                 "end": "2025-10-08T23:05:22.990269"
+            },
+            {
+                "start": "2025-10-11T00:35:44.455735",
+                "end": "2025-10-11T00:35:46.874272"
+            },
+            {
+                "start": "2025-10-12T00:00:35.160686",
+                "end": "2025-10-12T00:00:44.516993"
             }
-        ]
+        ],
+        "use_pomodoro": false,
+        "pomodoro_work": 25,
+        "pomodoro_short": 5,
+        "pomodoro_long": 15,
+        "pomodoro_cycles": 4
     },
     {
-        "id": "44a876b7-50dd-45a2-95f6-ba42b4529232",
-        "title": "",
+        "id": "109cdf34-ba8d-4f60-bec6-2a793b3f7e09",
+        "title": "Изучении математики",
         "description": "",
         "comment": "",
-        "start_date": "2025-10-09T00:17:48.772367",
+        "start_date": "2025-10-11T00:39:10.720761",
         "deadline": null,
         "is_completed": false,
         "time_allocated": 60,
-        "time_spent": 0,
+        "time_spent": 346.970284,
         "is_periodic": false,
         "period_type": null,
-        "sessions": []
+        "sessions": [
+            {
+                "start": "2025-10-11T00:39:21.921911",
+                "end": "2025-10-11T00:40:07.894959"
+            },
+            {
+                "start": "2025-10-11T00:40:17.847586",
+                "end": "2025-10-11T00:45:18.844822"
+            },
+            {
+                "start": "2025-10-12T00:00:19.480179",
+                "end": "2025-10-12T00:00:33.478753"
+            },
+            {
+                "start": "2025-10-12T00:00:51.128260",
+                "end": "2025-10-12T00:00:57.479010"
+            },
+            {
+                "start": "2025-10-12T00:00:59.407030",
+                "end": "2025-10-12T00:01:02.017381"
+            },
+            {
+                "start": "2025-10-12T00:14:30.104052",
+                "end": "2025-10-12T00:19:31.252862"
+            },
+            {
+                "start": "2025-10-12T00:20:32.334855",
+                "end": "2025-10-12T00:20:40.964821"
+            },
+            {
+                "start": "2025-10-12T01:11:49.835071",
+                "end": "2025-10-12T01:11:52.681625"
+            }
+        ],
+        "use_pomodoro": true,
+        "pomodoro_work": 5,
+        "pomodoro_short": 1,
+        "pomodoro_long": 5,
+        "pomodoro_cycles": 2
     }
 ]

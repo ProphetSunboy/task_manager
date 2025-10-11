@@ -1,3 +1,4 @@
+# reports_widget.py
 from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -9,17 +10,15 @@ from PyQt5.QtWidgets import (
     QDateEdit,
     QComboBox,
 )
-from PyQt5.QtCore import QDate
+from PyQt5.QtCore import QDate, Qt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-from datetime import datetime, timedelta
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 from matplotlib.colors import LinearSegmentedColormap
-
-# Зависимости проекта
+import numpy as np
+import pandas as pd
+from datetime import datetime, timedelta
+from .translations import tr
 from .storage import load_tasks
 from .tasks_widget import format_seconds
 
@@ -27,53 +26,69 @@ from .tasks_widget import format_seconds
 class ReportsWidget(QWidget):
     def __init__(self):
         super().__init__()
-        layout = QVBoxLayout(self)
-
-        self.search = QLineEdit()
-        self.search.setPlaceholderText("Поиск задачи...")
-        self.search.textChanged.connect(self.filter_tasks)
-
-        self.task_list = QListWidget()
         self.tasks = load_tasks()
-        for t in self.tasks:
-            self.task_list.addItem(t.title)
+        self.init_ui()
+        self.apply_font_size()
+        self.retranslateUi()
 
-        date_layout = QHBoxLayout()
-        self.start_date = QDateEdit()
-        self.start_date.setCalendarPopup(True)
+    def init_ui(self):
+        self.layout = QVBoxLayout(self)
+
+        self.search_label = QLabel()
+        self.search = QLineEdit()
+        self.search.textChanged.connect(self.filter_tasks)
+        self.task_list = QListWidget()
+
+        self.start_date_label = QLabel()
+        self.start_date = QDateEdit(calendarPopup=True)
         self.start_date.setDate(QDate.currentDate().addDays(-30))
-        self.end_date = QDateEdit()
-        self.end_date.setCalendarPopup(True)
+
+        self.end_date_label = QLabel()
+        self.end_date = QDateEdit(calendarPopup=True)
         self.end_date.setDate(QDate.currentDate())
-        date_layout.addWidget(QLabel("С:"))
-        date_layout.addWidget(self.start_date)
-        date_layout.addWidget(QLabel("По:"))
-        date_layout.addWidget(self.end_date)
 
-        period_layout = QHBoxLayout()
-        period_layout.addWidget(QLabel("Период:"))
+        self.period_label = QLabel()
         self.period_combo = QComboBox()
-        self.period_combo.addItems(["День", "Неделя", "Месяц"])
-        period_layout.addWidget(self.period_combo)
 
-        btn_row = QHBoxLayout()
-        self.btn_plot = QPushButton("Построить график")
-        btn_row.addWidget(self.btn_plot)
-
+        self.btn_plot = QPushButton()
         self.figure = Figure(figsize=(10, 4))
         self.canvas = FigureCanvas(self.figure)
-        self.time_info = QLabel("")
+        self.time_info = QLabel()
 
-        layout.addWidget(QLabel("Выберите задачу:"))
-        layout.addWidget(self.search)
-        layout.addWidget(self.task_list)
-        layout.addLayout(date_layout)
-        layout.addLayout(period_layout)
-        layout.addLayout(btn_row)
-        layout.addWidget(self.time_info)
-        layout.addWidget(self.canvas)
+        self.layout.addWidget(self.search_label)
+        self.layout.addWidget(self.search)
+        self.layout.addWidget(self.task_list)
+
+        date_layout = QHBoxLayout()
+        date_layout.addWidget(self.start_date_label)
+        date_layout.addWidget(self.start_date)
+        date_layout.addWidget(self.end_date_label)
+        date_layout.addWidget(self.end_date)
+        self.layout.addLayout(date_layout)
+
+        period_layout = QHBoxLayout()
+        period_layout.addWidget(self.period_label)
+        period_layout.addWidget(self.period_combo)
+        self.layout.addLayout(period_layout)
+
+        btn_row = QHBoxLayout()
+        btn_row.addWidget(self.btn_plot)
+        self.layout.addLayout(btn_row)
+        self.layout.addWidget(self.time_info)
+        self.layout.addWidget(self.canvas)
 
         self.btn_plot.clicked.connect(self.plot_selected)
+
+    def retranslateUi(self):
+        self.search_label.setText(tr("Select a task:"))
+        self.search.setPlaceholderText(tr("Search task..."))
+        self.start_date_label.setText(tr("From:"))
+        self.end_date_label.setText(tr("To:"))
+        self.period_label.setText(tr("Period:"))
+        self.period_combo.clear()
+        self.period_combo.addItems([tr("Day"), tr("Week"), tr("Month")])
+        self.btn_plot.setText(tr("Build chart"))
+        self.time_info.setText("")
 
     def filter_tasks(self):
         text = self.search.text().lower()
@@ -86,8 +101,7 @@ class ReportsWidget(QWidget):
         item = self.task_list.currentItem()
         if not item:
             return
-        title = item.text()
-        task = next((t for t in self.tasks if t.title == title), None)
+        task = next((t for t in self.tasks if t.title == item.text()), None)
         if not task:
             return
         start = self.start_date.date().toPyDate()
@@ -96,14 +110,6 @@ class ReportsWidget(QWidget):
         self.plot_task(task, start, end, period)
 
     def plot_task(self, task, start_date, end_date, period):
-        from matplotlib.ticker import MaxNLocator
-        from matplotlib.colors import LinearSegmentedColormap
-        import numpy as np
-        import pandas as pd
-        from datetime import datetime, timedelta
-        import matplotlib.pyplot as plt
-
-        # Подготовка данных
         dates, spent_seconds, allocated_seconds = [], [], []
         now = datetime.now()
         current = start_date
@@ -124,13 +130,13 @@ class ReportsWidget(QWidget):
         )
         df["date"] = pd.to_datetime(df["date"])
 
-        if period == "Неделя":
+        if period == tr("Week"):
             df = df.groupby(pd.Grouper(key="date", freq="W-MON")).sum().reset_index()
-        elif period == "Месяц":
+        elif period == tr("Month"):
             df = df.groupby(pd.Grouper(key="date", freq="M")).sum().reset_index()
 
         if df.empty:
-            self.time_info.setText("Нет данных для выбранного периода.")
+            self.time_info.setText(tr("No data for selected period."))
             self.figure.clear()
             self.canvas.draw()
             return
@@ -138,10 +144,9 @@ class ReportsWidget(QWidget):
         total_spent = df["spent"].sum()
         total_alloc = df["allocated"].sum()
         self.time_info.setText(
-            f"Общее время: {format_seconds(total_spent)} | Выделено: {format_seconds(total_alloc)}"
+            f"{tr('Total')}: {format_seconds(total_spent)} | {tr('Allocated')}: {format_seconds(total_alloc)}"
         )
 
-        # Построение графика
         self.figure.clear()
         ax = self.figure.add_subplot(111)
         ax.set_facecolor("#222831")
@@ -149,20 +154,14 @@ class ReportsWidget(QWidget):
 
         x = np.arange(len(df))
         width = 0.4
-
-        cmap_alloc = LinearSegmentedColormap.from_list(
-            "blue_grad", ["#3399ff", "#007bff"]
-        )
-        cmap_spent = LinearSegmentedColormap.from_list(
-            "green_grad", ["#2ecc71", "#1abc9c"]
-        )
-
         bars1 = [
             ax.bar(
                 x[i] - width / 2,
                 df["allocated"].iloc[i] / 3600,
                 width,
-                color=cmap_alloc(0.8),
+                color=LinearSegmentedColormap.from_list(
+                    "blue_grad", ["#3399ff", "#007bff"]
+                )(0.8),
                 alpha=0.8,
             )[0]
             for i in range(len(df))
@@ -172,7 +171,9 @@ class ReportsWidget(QWidget):
                 x[i] + width / 2,
                 df["spent"].iloc[i] / 3600,
                 width,
-                color=cmap_spent(0.8),
+                color=LinearSegmentedColormap.from_list(
+                    "green_grad", ["#2ecc71", "#1abc9c"]
+                )(0.8),
                 alpha=0.9,
             )[0]
             for i in range(len(df))
@@ -185,94 +186,26 @@ class ReportsWidget(QWidget):
             ha="right",
             color="white",
         )
-        ax.set_ylabel("Часы", color="white")
+        ax.set_ylabel(tr("Hours"), color="white")
         ax.tick_params(axis="y", colors="white")
         ax.tick_params(axis="x", colors="white")
-        ax.set_title(f"Отчёт по задаче: {task.title}", color="white", pad=15)
-        ax.yaxis.set_major_formatter(
-            plt.FuncFormatter(lambda x, _: f"{int(x)}h {int((x-int(x))*60)}m")
-        )
+        ax.set_title(f"{tr('Report for task:')} {task.title}", color="white", pad=15)
+        ax.yaxis.set_major_formatter(lambda x, _: f"{int(x)}h {int((x-int(x))*60)}m")
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         ax.grid(color="#444", linestyle="--", alpha=0.5)
         ax.legend(
             [bars1[0], bars2[0]],
-            ["Выделено", "Затрачено"],
+            [tr("Allocated"), tr("Spent")],
             facecolor="#2a2a2a",
             edgecolor="#444",
             labelcolor="white",
         )
         self.figure.tight_layout()
         self.figure.subplots_adjust(bottom=0.25)
-
-        # ---- Подсказки ----
-        annot = ax.annotate(
-            "",
-            xy=(0, 0),
-            xytext=(10, 10),
-            textcoords="offset points",
-            ha="center",
-            va="bottom",
-            bbox=dict(boxstyle="round", fc="#f8f9fa", ec="#000", lw=1),
-            arrowprops=dict(arrowstyle="->", color="#ccc"),
-        )
-        annot.set_visible(False)
-
-        def update_annot(bar, label, value):
-            x = bar.get_x() + bar.get_width() / 2
-            y = bar.get_height()
-            annot.xy = (x, y)
-
-            text = f"{label}: {format_seconds(value)}"
-            annot.set_text(text)
-
-            # --- координаты в пикселях ---
-            x_px, y_px = ax.transData.transform((x, y))
-            canvas_w, canvas_h = self.canvas.width(), self.canvas.height()
-
-            # стандартное смещение (право и вверх)
-            dx, dy = 10, 10
-
-            # если подсказка рисуется у правого края → рисуем левее
-            # если совсем у левого края → немного вправо
-            if x_px + 100 > canvas_w:
-                dx = -50
-            elif x_px < 100:
-                dx = 20
-
-            # если слишком высоко → немного вниз
-            if y_px > canvas_h - 100:
-                dy = -40
-
-            annot.set_position((dx, dy))
-            annot.set_visible(True)
-
-        def hover(event):
-            visible = annot.get_visible()
-            if event.inaxes != ax:
-                if visible:
-                    annot.set_visible(False)
-                    self.canvas.draw_idle()
-                return
-
-            found = False
-            for i, bar in enumerate(bars1):
-                if bar.contains(event)[0]:
-                    update_annot(bar, "Выделено", df["allocated"].iloc[i])
-                    found = True
-                    break
-
-            if not found:
-                for i, bar in enumerate(bars2):
-                    if bar.contains(event)[0]:
-                        update_annot(bar, "Затрачено", df["spent"].iloc[i])
-                        found = True
-                        break
-
-            if found:
-                self.canvas.draw_idle()
-            elif visible:
-                annot.set_visible(False)
-                self.canvas.draw_idle()
-
-        self.canvas.mpl_connect("motion_notify_event", hover)
         self.canvas.draw()
+
+    def apply_font_size(self):
+        font_size = getattr(self, "settings", {}).get("font_size", 12)
+        font = self.font()
+        font.setPointSize(font_size)
+        self.setFont(font)
