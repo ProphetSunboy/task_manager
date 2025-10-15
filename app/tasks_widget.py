@@ -1,4 +1,4 @@
-# tasks_widget.py
+# app/tasks_widget.py
 from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QBrush, QColor
 from .models import Task, Session
 from .storage import load_tasks, save_tasks
 from .dialogs import EditTaskDialog
@@ -84,31 +84,33 @@ class PomodoroManager:
 
 
 class TasksWidget(QWidget):
-    def __init__(self):
+    def __init__(self, settings=None):
         super().__init__()
+        self.settings = settings or {}
         self.tasks = load_tasks()
         self.active_task_id = None
         self._running_since = None
+
+        # Pomodoro state
         self.pomodoro_mgr = None
         self.pomodoro_remaining = 0
-        self.pomodoro_phase = None
-
+        self.pomodoro_phase = None  # "Work" / "Break" / "Long break"
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self._tick)
 
-        self.init_ui()
+        self._build_ui()
+        # apply font if settings supplied via SettingsWidget (main applies too)
         self.apply_font_size()
         self.retranslateUi()
 
-    def init_ui(self):
+    def _build_ui(self):
         main_layout = QHBoxLayout(self)
 
-        # Левая часть (список задач)
+        # Список задач
         left_layout = QVBoxLayout()
         self.list_widget = QListWidget()
         self.refresh_list()
-
         btn_row = QHBoxLayout()
         self.btn_add = QPushButton()
         self.btn_edit = QPushButton()
@@ -116,35 +118,34 @@ class TasksWidget(QWidget):
         btn_row.addWidget(self.btn_add)
         btn_row.addWidget(self.btn_edit)
         btn_row.addWidget(self.btn_del)
-
         left_layout.addWidget(self.list_widget)
         left_layout.addLayout(btn_row)
 
-        # Правая часть (таймер и детали)
+        # Правая часть
         right_layout = QVBoxLayout()
         self.label_timer = QLabel("00:00:00")
         self.label_timer.setAlignment(Qt.AlignCenter)
-        self.label_timer.setStyleSheet("font-weight:bold;")
+        self.label_timer.setStyleSheet("font-size:28px; font-weight:bold;")
         self.btn_start_stop = QPushButton()
         self.label_info = QLabel()
         self.label_spent = QLabel()
         self.label_pomodoro_count = QLabel()
+        self.history_label = QLabel(tr("History:"))
         self.history_list = QListWidget()
         self.history_list.setMinimumHeight(100)
-
         right_layout.addWidget(self.label_timer)
         right_layout.addWidget(self.btn_start_stop)
         right_layout.addWidget(self.label_info)
         right_layout.addWidget(self.label_spent)
         right_layout.addWidget(self.label_pomodoro_count)
-        right_layout.addWidget(QLabel(tr("History:")))
+        right_layout.addWidget(self.history_label)
         right_layout.addWidget(self.history_list)
         right_layout.addStretch()
 
         main_layout.addLayout(left_layout, 2)
         main_layout.addLayout(right_layout, 1)
 
-        # Сигналы кнопок
+        # Connections
         self.btn_add.clicked.connect(self.add_task)
         self.btn_edit.clicked.connect(self.edit_task)
         self.btn_del.clicked.connect(self.delete_task)
@@ -152,23 +153,39 @@ class TasksWidget(QWidget):
         self.btn_start_stop.clicked.connect(self.toggle_timer)
 
     def retranslateUi(self):
+        # переводы всех статичных элементов
         self.btn_add.setText(tr("Add"))
         self.btn_edit.setText(tr("Edit"))
         self.btn_del.setText(tr("Delete"))
+        # кнопка старт/стоп обновляется в зависимости от состояния
         self.btn_start_stop.setText(
             tr("Start") if not self.active_task_id else tr("Stop")
         )
-        self.label_info.setText(
-            tr("Select a task") if not self.active_task_id else self.label_info.text()
-        )
+        # info label отображается в зависимости от выбора задачи
+        if not self.active_task_id:
+            self.label_info.setText(tr("Select a task"))
+        else:
+            # если трекинг идёт, обновим метку (оставляем текущий формат)
+            # but ensure "Tracking" word is translated
+            text = self.label_info.text()
+            # если в тексте встречается английское "Tracking", заменим
+            if "Tracking" in text or "Трекинг" in text:
+                # rebuild with translated prefix
+                # try to extract task title part after colon
+                parts = text.split(":", 1)
+                if len(parts) == 2:
+                    title_part = parts[1].strip()
+                    self.label_info.setText(f"{tr('Tracking')}: {title_part}")
+        self.history_label.setText(tr("History:"))
+        # refresh lists and details
         self.refresh_list()
         self.show_task_info()
 
     def refresh_list(self):
         self.list_widget.clear()
         for t in self.tasks:
-            text = t.title
-            if t.is_completed:
+            text = t.title or "(no title)"
+            if getattr(t, "is_completed", False):
                 text += " (✓)"
             if t.is_overdue():
                 text = "❗ " + text
@@ -189,7 +206,7 @@ class TasksWidget(QWidget):
         if not item:
             return
         idx = self.list_widget.currentRow()
-        dlg = EditTaskDialog(self.tasks[idx], parent=self)
+        dlg = EditTaskDialog(task=self.tasks[idx], parent=self)
         if dlg.exec_():
             self.tasks[idx] = dlg.get_task()
             save_tasks(self.tasks)
@@ -200,14 +217,18 @@ class TasksWidget(QWidget):
         if not item:
             return
         idx = self.list_widget.currentRow()
+        if idx < 0 or idx >= len(self.tasks):
+            return
         task = self.tasks[idx]
         ok = QMessageBox.question(
-            self, tr("Delete"), f"{tr('Delete task')} '{task.title}'?"
+            self, tr("Delete task"), f"{tr('Delete task')} '{task.title}'?"
         )
         if ok == QMessageBox.StandardButton.Yes:
             del self.tasks[idx]
             save_tasks(self.tasks)
             self.refresh_list()
+            # очистим подробности
+            self._stop_timer_ui()
 
     def toggle_timer(self):
         item = self.list_widget.currentItem()
@@ -217,27 +238,33 @@ class TasksWidget(QWidget):
         idx = self.list_widget.currentRow()
         task = self.tasks[idx]
 
+        # Запуск
         if self.active_task_id is None:
             self.active_task_id = task.id
+            # Если Pomodoro включён — запуск менеджера
             if getattr(task, "use_pomodoro", False):
                 self.pomodoro_mgr = PomodoroManager(task)
                 self.pomodoro_remaining, self.pomodoro_phase = (
                     self.pomodoro_mgr.get_initial()
                 )
-                s = Session(start=datetime.now(), end=None)
-                task.sessions.append(s)
-                self._running_since = datetime.now()
+                # если фаза "Work" — создаём сессию
+                if self.pomodoro_phase == tr("Work"):
+                    s = Session(start=datetime.now(), end=None)
+                    task.sessions.append(s)
+                    self._running_since = datetime.now()
             else:
+                # обычный трекинг: создаём одну сессию (идёт пока не нажмут стоп)
                 s = Session(start=datetime.now(), end=None)
                 task.sessions.append(s)
                 self._running_since = datetime.now()
 
             self.btn_start_stop.setText(tr("Stop"))
             self.label_info.setText(
-                f"{tr('Tracking')}: {task.title} — {self.pomodoro_phase}"
+                f"{tr('Tracking')}: {task.title} — {self.pomodoro_phase or tr('Work')}"
             )
             self.timer.start()
         else:
+            # Стоп (пауза/остановка)
             current = next((t for t in self.tasks if t.id == self.active_task_id), None)
             if current:
                 for s in reversed(current.sessions):
@@ -256,9 +283,11 @@ class TasksWidget(QWidget):
             return
 
         if getattr(task, "use_pomodoro", False) and self.pomodoro_mgr:
+            # Pomodoro flow
             self.pomodoro_remaining -= 1
             if self.pomodoro_remaining < 0:
                 duration, phase = self.pomodoro_mgr.next_phase()
+                # если переход на перерыв — закрываем рабочую сессию
                 if self.pomodoro_mgr.is_break:
                     for s in reversed(task.sessions):
                         if s.end is None:
@@ -266,6 +295,7 @@ class TasksWidget(QWidget):
                             break
                     save_tasks(self.tasks)
                 else:
+                    # переключились на Work => начинаем новую сессию
                     s = Session(start=datetime.now(), end=None)
                     task.sessions.append(s)
                     self._running_since = datetime.now()
@@ -279,10 +309,12 @@ class TasksWidget(QWidget):
                 f"{tr('Tracking')}: {task.title} — {self.pomodoro_phase}"
             )
             self.label_pomodoro_count.setText(
-                f"Pomodoro: {self.pomodoro_mgr.current_cycle}/{self.pomodoro_mgr.cycles_before_long}"
+                f"{tr('Pomodoro')}: {self.pomodoro_mgr.current_cycle}/{self.pomodoro_mgr.cycles_before_long}"
             )
             self.update_time_info(task)
+            self._populate_history(task)
         else:
+            # обычный счётчик
             if self._running_since:
                 elapsed = (datetime.now() - self._running_since).total_seconds()
             else:
@@ -290,6 +322,7 @@ class TasksWidget(QWidget):
             self.label_timer.setText(format_seconds(int(task.time_spent + elapsed)))
             self.label_info.setText(f"{tr('Tracking')}: {task.title}")
             self.update_time_info(task)
+            self._populate_history(task)
 
     def _stop_timer_ui(self):
         self.active_task_id = None
@@ -301,14 +334,22 @@ class TasksWidget(QWidget):
         self.label_timer.setText("00:00:00")
         self.label_info.setText(tr("Select a task"))
         self.label_pomodoro_count.setText("")
+        self.history_list.clear()
 
     def show_task_info(self):
         item = self.list_widget.currentItem()
         if not item:
+            self.label_spent.setText("")
+            self.history_list.clear()
             return
         idx = self.list_widget.currentRow()
+        if idx < 0 or idx >= len(self.tasks):
+            # индекс недействителен — ничего не делаем
+            self.history_label.clear()  # или обновляем интерфейс соответствующим образом
+            return
         task = self.tasks[idx]
         self.update_time_info(task)
+        self._populate_history(task)
 
     def update_time_info(self, task):
         times = compute_task_time(task)
@@ -316,13 +357,35 @@ class TasksWidget(QWidget):
             f"{tr('Today')}: {format_seconds(times['today'])}, {tr('Week')}: {format_seconds(times['week'])}, {tr('Total')}: {format_seconds(times['total'])}"
         )
 
+    def _populate_history(self, task):
+        self.history_list.clear()
+        now = datetime.now()
+        for s in task.sessions:
+            start = s.start.strftime("%Y-%m-%d %H:%M:%S")
+            end = (
+                s.end.strftime("%Y-%m-%d %H:%M:%S")
+                if s.end
+                else tr("...running") if self.pomodoro_phase else "идёт..."
+            )
+            entry = f"{start} — {end}"
+            item_widget = QListWidgetItem(entry)
+            if s.end is None:
+                item_widget.setBackground(QBrush(QColor("#2ecc71")))
+            self.history_list.addItem(item_widget)
+
     def apply_font_size(self):
-        font_size = getattr(self, "settings", {}).get("font_size", 12)
+        # локальный запасной метод: применим размер шрифта от self.settings, если есть
+        font_size = (
+            int(self.settings.get("font_size", 12))
+            if getattr(self, "settings", None)
+            else 12
+        )
         font = self.font()
         font.setPointSize(font_size)
         self.setFont(font)
 
     def closeEvent(self, event):
+        # при закрытии, если активна задача — завершим текущую сессию и сохраним
         if self.active_task_id:
             task = next((t for t in self.tasks if t.id == self.active_task_id), None)
             if task:

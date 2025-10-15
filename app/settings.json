@@ -1,4 +1,5 @@
 {
-  "font_size": 12,
-  "language": "English"
+  "language": "English",
+  "dark_theme": false,
+  "font_size": 14
 }
