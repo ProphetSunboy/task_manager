@@ -34,10 +34,18 @@ SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "settings.json")
 
 
 def load_settings():
-    if os.path.exists(SETTINGS_FILE):
+    if not os.path.exists(SETTINGS_FILE):
+        return {"language": "Русский", "dark_theme": True, "font_size": 12}
+
+    try:
         with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {"language": "Русский", "dark_theme": True, "font_size": 12}
+            data = json.load(f)
+            if not isinstance(data, dict):
+                raise ValueError
+            return data
+    except Exception:
+        # если файл повреждён — восстанавливаем дефолт
+        return {"language": "Русский", "dark_theme": True, "font_size": 12}
 
 
 def save_settings(settings):
