@@ -1,22 +1,55 @@
-# translations.py
+# app/translations.py
+# -*- coding: utf-8 -*-
 
 LANGUAGES = ["Русский", "English"]
 
 
 class Translation:
     def __init__(self):
+        # язык по-умолчанию
         self.lang = "Русский"
+        # словарь переводов
         self.translations = {
             "Русский": {
+                # навигация / основное
+                "Tasks": "Задачи",
+                "Reports": "Графики",
+                "Settings": "Настройки",
+                "Timely — Time Tracker": "Timely — Трекер времени",
+                # tasks_widget
                 "Add": "Добавить",
                 "Edit": "Редактировать",
                 "Delete": "Удалить",
-                "Settings": "Настройки",
-                "Tasks": "Задачи",
-                "Reports": "Графики",
-                "Use Pomodoro": "Использовать Pomodoro-режим",
-                "Settings info": "Настройки приложения",
-                "Use dark theme": "Использовать тёмную тему",
+                "Start": "Старт",
+                "Stop": "Стоп",
+                "Select a task": "Выберите задачу",
+                "Tracking": "Трекинг",
+                "History:": "История:",
+                "Info": "Инфо",
+                "Delete task": "Удалить задачу",
+                "Select a task:": "Выберите задачу:",
+                "Today": "Сегодня",
+                "Week": "Неделя",
+                "Total": "Всего",
+                "Enable Deadline": "Включить дедлайн",
+                "Repeat:": "Повторять:",
+                "None": "Нет",
+                "Daily": "Ежедневно",
+                "Weekly": "Еженедельно",
+                "Monthly": "Ежемесячно",
+                "Title:": "Название:",
+                "Description:": "Описание:",
+                "Work minutes:": "Время работы:",
+                "Break minutes:": "Время перерыва:",
+                "Allocated time (min):": "Выделенное время (мин):",
+                "OK": "ОК",
+                "Cancel": "Отмена",
+                # pomodoro / generic
+                "Work": "Работа",
+                "Break": "Перерыв",
+                "Cycles before long break:": "Циклов до длинного перерыва:",
+                "Use Pomodoro": "Помодоро",
+                # reports_widget
                 "Search task...": "Поиск задачи...",
                 "From:": "С:",
                 "To:": "По:",
@@ -25,21 +58,58 @@ class Translation:
                 "Week": "Неделя",
                 "Month": "Месяц",
                 "Build chart": "Построить график",
+                "No data for selected period.": "Нет данных для выбранного периода.",
+                "Total": "Общее время",
                 "Allocated": "Выделено",
                 "Spent": "Затрачено",
-                "No data for selected period.": "Нет данных для выбранного периода.",
                 "Hours": "Часы",
+                "Report for task:": "Отчёт по задаче:",
+                "Select a task:": "Выберите задачу:",
+                # settings
+                "Language": "Язык",
+                "Use dark theme": "Использовать тёмную тему",
+                "Font size": "Размер шрифта",
             },
             "English": {
+                # навигация / основное
+                "Tasks": "Tasks",
+                "Reports": "Reports",
+                "Settings": "Settings",
+                "Timely — Time Tracker": "Timely — Time Tracker",
+                # tasks_widget
                 "Add": "Add",
                 "Edit": "Edit",
                 "Delete": "Delete",
-                "Settings": "Settings",
-                "Tasks": "Tasks",
-                "Reports": "Reports",
+                "Start": "Start",
+                "Stop": "Stop",
+                "Select a task": "Select a task",
+                "Tracking": "Tracking",
+                "History:": "History:",
+                "Info": "Info",
+                "Delete task": "Delete task",
+                "Select a task:": "Select a task:",
+                "Today": "Today",
+                "Week": "Week",
+                "Total": "Total",
+                "Enable Deadline": "Enable Deadline",
+                "Repeat:": "Repeat:",
+                "None": "None",
+                "Daily": "Daily",
+                "Weekly": "Weekly",
+                "Monthly": "Monthly",
+                "Title:": "Title:",
+                "Description:": "Description:",
+                "Work minutes:": "Work minutes:",
+                "Break minutes:": "Break minutes:",
+                "Allocated time (min):": "Allocated time (min):",
+                "OK": "OK",
+                "Cancel": "Cancel",
+                # pomodoro / generic
+                "Work": "Work",
+                "Break": "Break",
+                "Cycles before long break:": "Cycles before long break:",
                 "Use Pomodoro": "Use Pomodoro",
-                "Settings info": "Application settings",
-                "Use dark theme": "Use dark theme",
+                # reports_widget
                 "Search task...": "Search task...",
                 "From:": "From:",
                 "To:": "To:",
@@ -48,10 +118,17 @@ class Translation:
                 "Week": "Week",
                 "Month": "Month",
                 "Build chart": "Build chart",
+                "No data for selected period.": "No data for selected period.",
+                "Total": "Total",
                 "Allocated": "Allocated",
                 "Spent": "Spent",
-                "No data for selected period.": "No data for selected period.",
                 "Hours": "Hours",
+                "Report for task:": "Report for task:",
+                "Select a task:": "Select a task:",
+                # settings
+                "Language": "Language",
+                "Use dark theme": "Use dark theme",
+                "Font size": "Font size",
             },
         }
 
@@ -60,8 +137,9 @@ class Translation:
             self.lang = lang
 
     def __call__(self, text):
+        # возвращаем перевод если есть, иначе исходный текст
         return self.translations.get(self.lang, {}).get(text, text)
 
 
-# глобальный экземпляр для импорта
+# глобальный экземпляр для удобства импорта
 tr = Translation()
