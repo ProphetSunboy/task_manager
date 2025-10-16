@@ -104,6 +104,10 @@ class ReportsWidget(QWidget):
             title = t.title or "(no title)"
             self.task_list.addItem(title)
 
+    def refresh_data(self):
+        """Обновляет данные графиков после изменения задач."""
+        self.populate_task_list()
+
     def filter_tasks(self):
         text = self.search.text().lower()
         self.task_list.clear()

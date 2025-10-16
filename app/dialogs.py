@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt, QDate
 from datetime import datetime
-from .tasks_model import Task
+from .models import Task
 from .translations import tr  # используем перевод
 
 
@@ -166,7 +166,7 @@ class EditTaskDialog(QDialog):
 
     def get_task(self):
         """Возвращает объект Task с актуальными данными из диалога"""
-        from .tasks_model import Task
+        from .models import Task
 
         self.task.title = self.title_edit.text()
         self.task.description = self.desc_edit.toPlainText()

@@ -167,13 +167,19 @@
         "id": "dbc08764-3bf4-4c2e-ac66-940fa5d7bedf",
         "title": "Working on Timely",
         "description": "",
-        "deadline": "2025-10-15",
+        "comment": "",
+        "start_date": "2025-10-16T17:40:10.355890",
+        "deadline": "2025-10-15T00:00:00",
+        "is_completed": false,
+        "time_allocated": 30,
+        "time_spent": 0,
+        "is_periodic": false,
+        "period_type": null,
+        "sessions": [],
         "use_pomodoro": true,
         "pomodoro_work": 25,
-        "pomodoro_break": 5,
-        "periodicity": null,
-        "deadline_enabled": false,
-        "time_allocated": 30,
-        "sessions": []
+        "pomodoro_short": 5,
+        "pomodoro_long": 15,
+        "pomodoro_cycles": 4
     }
 ]

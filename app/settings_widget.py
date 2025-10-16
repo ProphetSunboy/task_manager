@@ -132,7 +132,7 @@ class SettingsWidget(QWidget):
         # восстановим список языков и выбранный элемент (названия языков не переводим)
         current = self.lang_combo.currentText()
         self.lang_combo.clear()
-        self.lang_combo.addItems(LANGUAGES)
+        self.lang_combo.addItems(list(dict.fromkeys(LANGUAGES)))
         self.lang_combo.setCurrentText(current)
         # применяем шрифт (чтобы текст поместился)
         self.apply_font_size()

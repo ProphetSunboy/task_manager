@@ -123,4 +123,7 @@ class Task:
 
         if not self.deadline:
             return False
-        return (not self.is_completed) and (self.deadline < datetime.now())
+        try:
+            return (not self.is_completed) and (self.deadline < datetime.now().date())
+        except Exception:
+            return False

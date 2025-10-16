@@ -104,6 +104,9 @@ class MainWindow(QMainWindow):
         self.btn_reports.setChecked(index == 1)
         self.btn_settings.setChecked(index == 2)
 
+        if index == 1:
+            self.reports_page.refresh_data()
+
     def closeEvent(self, event):
         # перед закрытием делегируем TasksWidget сохранение
         if hasattr(self, "tasks_page") and self.tasks_page:
@@ -177,8 +180,18 @@ class MainWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    # применим глобальный стиль (qdarkstyle) — это у тебя уже было
-    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    # Загружаем настройки
+    settings = load_settings()
+    dark_theme = settings.get("dark_theme", True)
+
+    # Применяем тему сразу
+    if dark_theme:
+        try:
+            app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+        except Exception:
+            app.setStyleSheet("")
+    else:
+        app.setStyleSheet("")
     # если в настройках был размер шрифта — применим
     # но SettingsWidget также применит при инициализации
     w = MainWindow()
