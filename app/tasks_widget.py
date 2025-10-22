@@ -107,8 +107,8 @@ class TasksWidget(QWidget):
         self.retranslateUi()
 
     def _build_ui(self):
-        main_layout = QHBoxLayout(self)
-
+        main_layout = QVBoxLayout(self)
+        top_layout = QHBoxLayout()
         # Список задач
         left_layout = QVBoxLayout()
         self.list_widget = QListWidget()
@@ -122,20 +122,6 @@ class TasksWidget(QWidget):
         btn_row.addWidget(self.btn_del)
         left_layout.addWidget(self.list_widget)
         left_layout.addLayout(btn_row)
-
-        # ИИ-ассистент
-        self.ai_label = QTextEdit()
-        self.ai_label.setReadOnly(True)
-        self.ai_label.setMinimumHeight(100)  # высота блока
-        self.ai_label.setStyleSheet("background-color: #f0f0f0; padding: 5px;")
-        left_layout.addWidget(self.ai_label)
-
-        self.btn_generate_all = QPushButton(tr("Generate for all tasks"))
-        left_layout.addWidget(self.btn_generate_all)
-
-        # Сигналы
-        self.list_widget.itemSelectionChanged.connect(self.update_ai_for_selected)
-        self.btn_generate_all.clicked.connect(self.generate_ai_for_all)
 
         # Правая часть
         right_layout = QVBoxLayout()
@@ -158,8 +144,24 @@ class TasksWidget(QWidget):
         right_layout.addWidget(self.history_list)
         right_layout.addStretch()
 
-        main_layout.addLayout(left_layout, 2)
-        main_layout.addLayout(right_layout, 1)
+        top_layout.addLayout(left_layout, 2)
+        top_layout.addLayout(right_layout, 1)
+
+        main_layout.addLayout(top_layout)
+
+        # ИИ-ассистент
+        self.ai_label = QTextEdit()
+        self.ai_label.setReadOnly(True)
+        self.ai_label.setMinimumHeight(100)  # высота блока
+        self.ai_label.setStyleSheet("background-color: #f0f0f0; padding: 5px;")
+        main_layout.addWidget(self.ai_label)
+
+        self.btn_generate_all = QPushButton(tr("Generate for all tasks"))
+        main_layout.addWidget(self.btn_generate_all)
+
+        # Сигналы
+        self.list_widget.itemSelectionChanged.connect(self.update_ai_for_selected)
+        self.btn_generate_all.clicked.connect(self.generate_ai_for_all)
 
         # Connections
         self.btn_add.clicked.connect(self.add_task)

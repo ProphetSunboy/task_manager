@@ -119,11 +119,15 @@ class Task:
         )
 
     def is_overdue(self) -> bool:
-        from datetime import datetime
+        from datetime import datetime, date
 
         if not self.deadline:
             return False
-        try:
-            return (not self.is_completed) and (self.deadline < datetime.now().date())
-        except Exception:
-            return False
+
+        # Приводим к date
+        if isinstance(self.deadline, datetime):
+            deadline_date = self.deadline.date()
+        else:
+            deadline_date = self.deadline
+
+        return (not self.is_completed) and (deadline_date < datetime.now().date())

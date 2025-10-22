@@ -1,13 +1,24 @@
 # ai_assistant.py
 from .models import Task
-from datetime import datetime
+from datetime import datetime, date
 
 
 def get_task_advice(task: Task) -> str:
     advices = []
     if not task.is_completed:
         if task.deadline:
-            days_left = (task.deadline - datetime.now().date()).days
+            if isinstance(task.deadline, datetime):
+                deadline_date = task.deadline.date()
+            elif isinstance(task.deadline, date):
+                deadline_date = task.deadline
+            else:
+                deadline_date = None
+
+            if deadline_date:
+                days_left = (deadline_date - datetime.now().date()).days
+            else:
+                days_left = None
+
             if days_left < 0:
                 advices.append("Задача просрочена!")
             elif days_left <= 2:
