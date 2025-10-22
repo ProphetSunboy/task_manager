@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 import uuid
 import winsound
 from .translations import tr
-from .ai_assistant import get_task_advice, get_all_tasks_advice
+from .ai_assistant import get_task_advice
 
 
 def format_seconds(seconds):
@@ -156,12 +156,8 @@ class TasksWidget(QWidget):
         self.ai_label.setStyleSheet("background-color: #f0f0f0; padding: 5px;")
         main_layout.addWidget(self.ai_label)
 
-        self.btn_generate_all = QPushButton(tr("Generate for all tasks"))
-        main_layout.addWidget(self.btn_generate_all)
-
         # Сигналы
         self.list_widget.itemSelectionChanged.connect(self.update_ai_for_selected)
-        self.btn_generate_all.clicked.connect(self.generate_ai_for_all)
 
         # Connections
         self.btn_add.clicked.connect(self.add_task)
@@ -205,13 +201,23 @@ class TasksWidget(QWidget):
         if not item:
             self.ai_label.setText("")
             return
+
         idx = self.list_widget.currentRow()
         task = self.tasks[idx]
-        self.ai_label.setText(get_task_advice(task))
 
-    def generate_ai_for_all(self):
-        """Генерирует общие рекомендации для всех задач"""
-        self.ai_label.setText(get_all_tasks_advice(self.tasks))
+        # Определяем язык из настроек
+        lang_setting = self.settings.get("language", "Русский")
+        if lang_setting == "English":
+            lang = "en"
+        else:
+            lang = "ru"
+
+        # Показываем заглушку, пока идёт генерация совета
+        self.ai_label.setText("💡 Генерация совета ИИ...")
+
+        # Генерация совета
+        advice = get_task_advice(task, lang=lang)
+        self.ai_label.setText(f"💡 Совет ИИ: {advice}")
 
     def refresh_list(self):
         self.list_widget.clear()
