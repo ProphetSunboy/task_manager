@@ -40,7 +40,7 @@ class Task:
         # Pomodoro settings
         use_pomodoro: bool = False,
         pomodoro_work: int = 25,
-        pomodoro_short: int = 5,
+        pomodoro_break: int = 5,
         pomodoro_long: int = 15,
         pomodoro_cycles: int = 4,
     ):
@@ -60,7 +60,7 @@ class Task:
         # Pomodoro
         self.use_pomodoro = use_pomodoro
         self.pomodoro_work = pomodoro_work
-        self.pomodoro_short = pomodoro_short
+        self.pomodoro_break = pomodoro_break
         self.pomodoro_long = pomodoro_long
         self.pomodoro_cycles = pomodoro_cycles
 
@@ -81,7 +81,7 @@ class Task:
             # Pomodoro
             "use_pomodoro": self.use_pomodoro,
             "pomodoro_work": self.pomodoro_work,
-            "pomodoro_short": self.pomodoro_short,
+            "pomodoro_break": self.pomodoro_break,
             "pomodoro_long": self.pomodoro_long,
             "pomodoro_cycles": self.pomodoro_cycles,
         }
@@ -113,7 +113,7 @@ class Task:
             sessions=sessions,
             use_pomodoro=data.get("use_pomodoro", False),
             pomodoro_work=data.get("pomodoro_work", 25),
-            pomodoro_short=data.get("pomodoro_short", 5),
+            pomodoro_break=data.get("pomodoro_break", 5),
             pomodoro_long=data.get("pomodoro_long", 15),
             pomodoro_cycles=data.get("pomodoro_cycles", 4),
         )

@@ -103,7 +103,7 @@
         ],
         "use_pomodoro": false,
         "pomodoro_work": 25,
-        "pomodoro_short": 5,
+        "pomodoro_break": 5,
         "pomodoro_long": 15,
         "pomodoro_cycles": 4
     },
@@ -155,11 +155,15 @@
             {
                 "start": "2025-10-15T16:28:11.430879",
                 "end": "2025-10-15T16:28:15.156240"
+            },
+            {
+                "start": "2025-10-22T14:39:49.814501",
+                "end": "2025-10-22T14:39:59.957262"
             }
         ],
         "use_pomodoro": true,
         "pomodoro_work": 5,
-        "pomodoro_short": 1,
+        "pomodoro_break": 5,
         "pomodoro_long": 5,
         "pomodoro_cycles": 2
     },
@@ -178,8 +182,32 @@
         "sessions": [],
         "use_pomodoro": true,
         "pomodoro_work": 25,
-        "pomodoro_short": 5,
+        "pomodoro_break": 5,
         "pomodoro_long": 15,
         "pomodoro_cycles": 4
+    },
+    {
+        "id": "a2736d52-af1f-41c7-a653-0b5e4a00a1a2",
+        "title": "Помадоро чек",
+        "description": "",
+        "comment": "",
+        "start_date": "2025-10-22T15:07:24.253236",
+        "deadline": null,
+        "is_completed": true,
+        "time_allocated": 60,
+        "time_spent": 0,
+        "is_periodic": false,
+        "period_type": null,
+        "sessions": [
+            {
+                "start": "2025-10-22T15:07:26.059462",
+                "end": "2025-10-22T15:07:33.203982"
+            }
+        ],
+        "use_pomodoro": true,
+        "pomodoro_work": 30,
+        "pomodoro_break": 2,
+        "pomodoro_long": 15,
+        "pomodoro_cycles": 2
     }
 ]

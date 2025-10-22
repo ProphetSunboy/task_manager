@@ -23,6 +23,7 @@ class Translation:
                 "Start": "Старт",
                 "Stop": "Стоп",
                 "Select a task": "Выберите задачу",
+                "Generate for all tasks": "Сгенерировать для всех задач",
                 "Tracking": "Трекинг",
                 "History:": "История:",
                 "Info": "Инфо",
@@ -42,6 +43,7 @@ class Translation:
                 "Work minutes:": "Время работы:",
                 "Break minutes:": "Время перерыва:",
                 "Allocated time (min):": "Выделенное время (мин):",
+                "Task completed": "Задача выполнена",
                 "OK": "ОК",
                 "Cancel": "Отмена",
                 # pomodoro / generic
@@ -83,6 +85,7 @@ class Translation:
                 "Start": "Start",
                 "Stop": "Stop",
                 "Select a task": "Select a task",
+                "Generate for all tasks": "Generate for all tasks",
                 "Tracking": "Tracking",
                 "History:": "History:",
                 "Info": "Info",
@@ -102,6 +105,7 @@ class Translation:
                 "Work minutes:": "Work minutes:",
                 "Break minutes:": "Break minutes:",
                 "Allocated time (min):": "Allocated time (min):",
+                "Task completed": "Task completed",
                 "OK": "OK",
                 "Cancel": "Cancel",
                 # pomodoro / generic

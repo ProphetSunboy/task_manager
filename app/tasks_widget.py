@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QListWidgetItem,
     QMessageBox,
+    QTextEdit,
 )
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5.QtGui import QBrush, QColor
@@ -18,6 +19,7 @@ from datetime import datetime, timedelta
 import uuid
 import winsound
 from .translations import tr
+from .ai_assistant import get_task_advice, get_all_tasks_advice
 
 
 def format_seconds(seconds):
@@ -59,7 +61,7 @@ class PomodoroManager:
     def __init__(self, task: Task):
         self.task = task
         self.work_duration = int(task.pomodoro_work) * 60
-        self.short_break = int(task.pomodoro_short) * 60
+        self.short_break = int(task.pomodoro_break) * 60
         self.long_break = int(task.pomodoro_long) * 60
         self.cycles_before_long = int(task.pomodoro_cycles)
         self.current_cycle = 0
@@ -121,6 +123,20 @@ class TasksWidget(QWidget):
         left_layout.addWidget(self.list_widget)
         left_layout.addLayout(btn_row)
 
+        # ИИ-ассистент
+        self.ai_label = QTextEdit()
+        self.ai_label.setReadOnly(True)
+        self.ai_label.setMinimumHeight(100)  # высота блока
+        self.ai_label.setStyleSheet("background-color: #f0f0f0; padding: 5px;")
+        left_layout.addWidget(self.ai_label)
+
+        self.btn_generate_all = QPushButton(tr("Generate for all tasks"))
+        left_layout.addWidget(self.btn_generate_all)
+
+        # Сигналы
+        self.list_widget.itemSelectionChanged.connect(self.update_ai_for_selected)
+        self.btn_generate_all.clicked.connect(self.generate_ai_for_all)
+
         # Правая часть
         right_layout = QVBoxLayout()
         self.label_timer = QLabel("00:00:00")
@@ -180,6 +196,20 @@ class TasksWidget(QWidget):
         # refresh lists and details
         self.refresh_list()
         self.show_task_info()
+
+    def update_ai_for_selected(self):
+        """Обновляет подсказки для выбранной задачи"""
+        item = self.list_widget.currentItem()
+        if not item:
+            self.ai_label.setText("")
+            return
+        idx = self.list_widget.currentRow()
+        task = self.tasks[idx]
+        self.ai_label.setText(get_task_advice(task))
+
+    def generate_ai_for_all(self):
+        """Генерирует общие рекомендации для всех задач"""
+        self.ai_label.setText(get_all_tasks_advice(self.tasks))
 
     def refresh_list(self):
         self.list_widget.clear()

@@ -59,24 +59,41 @@ class EditTaskDialog(QDialog):
         right_layout = QVBoxLayout()
         right_layout.setSpacing(10)
 
-        # Дедлайн
-        self.enable_deadline_cb = QCheckBox(tr("Enable Deadline"))
-        self.enable_deadline_cb.setChecked(
-            getattr(self.task, "deadline", None) is not None
-        )
-        self.enable_deadline_cb.toggled.connect(self.toggle_deadline)
-        right_layout.addWidget(self.enable_deadline_cb)
-
-        from PyQt5.QtWidgets import QDateEdit
+        from PyQt5.QtWidgets import QCheckBox, QDateEdit
         from PyQt5.QtCore import QDate
+
+        # --- Дедлайн ---
+        self.enable_deadline_cb = QCheckBox(tr("Enable Deadline"))
+        right_layout.addWidget(self.enable_deadline_cb)
 
         self.deadline_edit = QDateEdit()
         self.deadline_edit.setCalendarPopup(True)
-        if getattr(self.task, "deadline", None):
-            self.deadline_edit.setDate(self.task.deadline)
+        right_layout.addWidget(self.deadline_edit)
+
+        # Загружаем данные из задачи
+        deadline = getattr(self.task, "deadline", None)
+
+        if deadline:
+            # Если у задачи есть дедлайн
+            if isinstance(deadline, QDate):
+                self.deadline_edit.setDate(deadline)
+            else:
+                self.deadline_edit.setDate(
+                    QDate(deadline.year, deadline.month, deadline.day)
+                )
+            self.enable_deadline_cb.setChecked(True)
+            self.deadline_edit.setEnabled(True)
         else:
+            # Если дедлайна нет
             self.deadline_edit.setDate(QDate.currentDate())
-        self.deadline_edit.setEnabled(self.enable_deadline_cb.isChecked())
+            self.enable_deadline_cb.setChecked(False)
+            self.deadline_edit.setEnabled(False)
+
+        # При изменении чекбокса — включаем/выключаем календарь
+        self.enable_deadline_cb.toggled.connect(self.deadline_edit.setEnabled)
+
+        # Связываем чекбокс с полем
+        self.enable_deadline_cb.toggled.connect(self.deadline_edit.setEnabled)
         right_layout.addWidget(self.deadline_edit)
 
         # Выделено времени
@@ -123,6 +140,11 @@ class EditTaskDialog(QDialog):
 
         right_layout.addLayout(self.pomodoro_container)
         self.toggle_pomodoro_fields(self.use_pomodoro_cb.isChecked())
+
+        # Выполнена
+        self.completed_cb = QCheckBox(tr("Task completed"))
+        self.completed_cb.setChecked(getattr(self.task, "is_completed", False))
+        right_layout.addWidget(self.completed_cb)
 
         # ----------------- Кнопки OK/Cancel -----------------
         btn_layout = QHBoxLayout()
@@ -173,7 +195,11 @@ class EditTaskDialog(QDialog):
         self.task.time_allocated = int(self.time_alloc_edit.text())
 
         # Дедлайн
-        self.task.deadline = self.deadline_edit.date().toPyDate()
+        self.task.deadline = (
+            self.deadline_edit.date().toPyDate()
+            if self.enable_deadline_cb.isChecked()
+            else None
+        )
 
         # Pomodoro
         self.task.use_pomodoro = self.use_pomodoro_cb.isChecked()
@@ -181,12 +207,15 @@ class EditTaskDialog(QDialog):
             try:
                 self.task.pomodoro_work = int(self.pomodoro_work_edit.text())
                 self.task.pomodoro_break = int(self.pomodoro_break_edit.text())
+                self.task.pomodoro_cycles = int(self.pomodoro_cycles_edit.text())
             except ValueError:
                 self.task.pomodoro_work = 25
                 self.task.pomodoro_break = 5
+                self.task.pomodoro_cycles = 4
         else:
             self.task.pomodoro_work = 0
             self.task.pomodoro_break = 0
+            self.task.pomodoro_cycles = 0
 
         # Периодичность
         self.task.periodicity = (
@@ -197,9 +226,11 @@ class EditTaskDialog(QDialog):
 
         # Дедлайн включён или нет
         self.task.deadline_enabled = (
-            self.deadline_enabled_cb.isChecked()
-            if hasattr(self, "deadline_enabled_cb")
+            self.enable_deadline_cb.isChecked()
+            if hasattr(self, "enable_deadline_cb")
             else False
         )
+
+        self.task.is_completed = self.completed_cb.isChecked()
 
         return self.task
