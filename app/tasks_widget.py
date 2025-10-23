@@ -153,7 +153,9 @@ class TasksWidget(QWidget):
         self.ai_label = QTextEdit()
         self.ai_label.setReadOnly(True)
         self.ai_label.setMinimumHeight(100)  # высота блока
-        self.ai_label.setStyleSheet("background-color: #f0f0f0; padding: 5px;")
+        self.ai_label.setStyleSheet(
+            "background-color: #f8f9fa; color: #000000; border-radius: 8px; padding: 5px;"
+        )
         main_layout.addWidget(self.ai_label)
 
         # Сигналы
@@ -213,11 +215,11 @@ class TasksWidget(QWidget):
             lang = "ru"
 
         # Показываем заглушку, пока идёт генерация совета
-        self.ai_label.setText("💡 Генерация совета ИИ...")
+        self.ai_label.setText("💡 " + tr("Generation of AI advice..."))
 
         # Генерация совета
         advice = get_task_advice(task, lang=lang)
-        self.ai_label.setText(f"💡 Совет ИИ: {advice}")
+        self.ai_label.setText("💡 " + tr("AI advice:") + f"{advice}")
 
     def refresh_list(self):
         self.list_widget.clear()
