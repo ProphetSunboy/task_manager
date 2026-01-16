@@ -98,18 +98,18 @@ prompt = (
   
   ### Clone the repository
   ```bash
-    git clone https://github.com/your-username/task-manager.git
+  git clone https://github.com/your-username/task-manager.git
   ```
 
   ### Install dependencies
   ```bash
-    pip install -r requirements.txt
+  pip install -r requirements.txt
   ```
 
   ### Run the app
 
   ```bash
-    python main.py
+  python main.py
   ```
 
   ### (Optional) Add your Hugging Face API token under Settings → AI Token
