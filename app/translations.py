@@ -1,6 +1,3 @@
-# app/translations.py
-# -*- coding: utf-8 -*-
-
 LANGUAGES = ["Русский", "English"]
 
 
@@ -143,9 +140,7 @@ class Translation:
             self.lang = lang
 
     def __call__(self, text):
-        # возвращаем перевод если есть, иначе исходный текст
         return self.translations.get(self.lang, {}).get(text, text)
 
 
-# глобальный экземпляр для удобства импорта
 tr = Translation()
