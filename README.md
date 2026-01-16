@@ -113,6 +113,11 @@ prompt = (
   ```
 
   ### (Optional) Add your Hugging Face API token under Settings → AI Token
+
+## 🖼️ Screenshots
+
+![Tasks](images/tasks.jfif)
+![Reports](images/reports.jfif)
 	
 ## 💬 About This Project
 
