@@ -40,7 +40,7 @@ The system combines classical Pomodoro-based tracking with modern **language mod
 
 - 🌗 **Adaptive Interface**
   - Fully theme-aware (Light/Dark mode)
-  - Built in PyQt6 for a native desktop feel
+  - Built in PyQt5 for a native desktop feel
 
 - ⚙️ **Customizable Settings**
   - Language & theme preferences
@@ -64,23 +64,14 @@ prompt = (
 ```
 
 ## 🧠 Tech Stack
-|Area	              | Technology |
-|-------------------|------------|
-|Frontend (UI)      | PyQt6 |
-|AI Engine          | Transformers (Hugging Face) |
+|Area	              | Technology                         |
+|-------------------|------------------------------------|
+|Frontend (UI)      | PyQt5                              |
+|AI Engine          | Transformers (Hugging Face)        |
 |Models	            | ruGPT3Small, DistilGPT2, Mistral-7B|
-|Charts & Analytics |	Matplotlib |
-|Core Language      | Python 3.10 |
-|ML Backend        	| PyTorch / SafeTensor |
-
-## 🏗️ Architecture
-
-/app
- ├── main.py              # Entry point
- ├── tasks_widget.py      # Task UI logic
- ├── ai_assistant.py      # AI assistant (local + cloud)
- ├── settings.json        # User preferences
- └── models/              # Local AI models
+|Charts & Analytics |	Matplotlib                         |
+|Core Language      | Python 3.10                        |
+|ML Backend        	| PyTorch / SafeTensor               |
 
 ## 🌟 Developer Achievements
 
@@ -106,20 +97,20 @@ prompt = (
 
   
   ### Clone the repository
-    ```bash
+  ```bash
     git clone https://github.com/your-username/task-manager.git
-    ```
+  ```
 
   ### Install dependencies
-    ```bash
+  ```bash
     pip install -r requirements.txt
-    ```
+  ```
 
   ### Run the app
 
-    ```bash
+  ```bash
     python main.py
-    ```
+  ```
 
   ### (Optional) Add your Hugging Face API token under Settings → AI Token
 	
@@ -127,6 +118,7 @@ prompt = (
 
 This project demonstrates practical AI integration in desktop software — connecting large language models with real productivity workflows.
 It’s a showcase of clean code, model optimization, and applied machine learning for everyday tools.
+
 🧑‍💻 Author
 
 Vlad Kapitsa — Python Developer
