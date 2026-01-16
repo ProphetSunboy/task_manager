@@ -7,7 +7,7 @@ Built with ❤️ in <b>Python + PyQt + Hugging Face Transformers</b>.
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10%2B-blue?logo=python" alt="Python">
-  <img src="https://img.shields.io/badge/UI-PyQt6-6aa84f" alt="PyQt6">
+  <img src="https://img.shields.io/badge/UI-PyQt5-6aa84f" alt="PyQt6">
   <img src="https://img.shields.io/badge/AI-Transformers-orange?logo=huggingface" alt="AI">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
 </p>
