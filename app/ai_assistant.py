@@ -17,7 +17,7 @@ HF_MODELS = {
     "en": "mistralai/Mistral-7B-Instruct-v0.2",
 }
 
-HF_TOKEN = os.getenv("HF_TOKEN", "HF_TOKEN_HERE")
+HF_TOKEN = os.getenv("HF_TOKEN", "YOUR_HF_TOKEN")
 
 # 🔹 Словарь для ленивой загрузки моделей
 _models = {}
