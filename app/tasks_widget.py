@@ -1,4 +1,3 @@
-# app/tasks_widget.py
 from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
